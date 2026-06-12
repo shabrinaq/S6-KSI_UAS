@@ -4,18 +4,20 @@ session_start();
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST['username'];
-    $password = md5($_POST['password']);
+    $password = $_POST['password'];
 
     // Perbaikan: menggunakan prepared statement agar tidak rentan SQL Injection
-    $stmt = mysqli_prepare($conn, "SELECT * FROM users WHERE username = ? AND password = ?");
-    mysqli_stmt_bind_param($stmt, "ss", $username, $password);
+    $stmt = mysqli_prepare($conn, "SELECT * FROM users WHERE username = ?");
+    mysqli_stmt_bind_param($stmt, "s", $username);
     mysqli_stmt_execute($stmt);
 
     $result = mysqli_stmt_get_result($stmt);
+    $user = mysqli_fetch_assoc($result);
 
-    if (mysqli_num_rows($result) > 0) {
+    // Verifikasi password menggunakan password_verify()
+    if ($user && password_verify($password, $user['password'])) {
         session_regenerate_id(true);
-        $_SESSION['user'] = $username;
+        $_SESSION['user'] = $user['username'];
         header("Location: dashboard.php");
         exit;
     } else {
