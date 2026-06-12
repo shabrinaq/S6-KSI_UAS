@@ -1,14 +1,21 @@
 <?php
 include 'config/database.php';
 
-$name = $_GET['q']; // Celah: Input langsung digunakan tanpa Prepared Statements
+// Tangkap input, lalu escape agar aman
+$name = $_GET['q'] ?? '';
+$name = "%$name%";
 
-// Vektor Serangan: ' OR '1'='1
-$query = "SELECT * FROM patients WHERE name LIKE '%$name%'";
-$result = mysqli_query($conn, $query);
+// Gunakan prepared statement untuk mencegah SQL Injection
+$stmt = mysqli_prepare($conn, "SELECT * FROM patients WHERE name LIKE ?");
+mysqli_stmt_bind_param($stmt, "s", $name);
+mysqli_stmt_execute($stmt);
+
+$result = mysqli_stmt_get_result($stmt);
 
 echo "<h1>Hasil Pencarian Pasien:</h1>";
 while($row = mysqli_fetch_assoc($result)) {
-    echo "Nama: " . $row['name'] . " | NIK: " . $row['nik'] . "<br>";
+    $safe_name = htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8');
+    $safe_nik = htmlspecialchars($row['nik'], ENT_QUOTES, 'UTF-8');
+    echo "Nama: " . $safe_name . " | NIK: " . $safe_nik . "<br>";
 }
 ?>
