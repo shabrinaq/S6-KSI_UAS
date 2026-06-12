@@ -17,6 +17,7 @@ $row = $result->fetch_assoc();
 
 <?php if ($row): ?>
     <p>Nama: <?php echo htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8'); ?></p>
+    <p>NIK: <?php echo htmlspecialchars($row['nik'], ENT_QUOTES, 'UTF-8'); ?></p> 
     <p>Diagnosis: <?php echo htmlspecialchars($row['diagnosis'], ENT_QUOTES, 'UTF-8'); ?></p>
 <?php else: ?>
     <p>Data pasien tidak ditemukan.</p>
